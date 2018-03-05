@@ -96,7 +96,7 @@ author:
   bio              : "Workshop Author"
   location         : "Edinburgh University"
   email            :
-  uri              : "http://jsren.co.uk"
+  uri              :
   home             : # null (default), "absolute or relative url to link to author home"
   bitbucket        :
   codepen          :

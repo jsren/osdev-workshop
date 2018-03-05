@@ -15,9 +15,13 @@ toc:
   - title: "0 - Workshop Setup"
     children:
       - title: "Install all the things!"
-        url: /start/setup
+        url: /parts/0/setup
       - title: "Example Setups"
-        url: /start/examples
+        url: /parts/0/examples
+      - title: "Testing your Setup"
+        url: /parts/0/test
+      - title: "Skeleton Repository"
+        url: https://github.com/jsren/dasboot
 
   - title: "1 - x86 Assembly"
     children:
