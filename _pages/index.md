@@ -7,8 +7,6 @@ sidebar:
   nav: "toc"
 ---
 
-# OSdev Workshop Webpage
-
 ## Introduction
 
 ## Workshop Rules
