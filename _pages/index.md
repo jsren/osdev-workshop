@@ -1,7 +1,10 @@
 ---
 title: "Workshop Home"
 layout: archive
-permalink: /home/
+permalink: /
+author_profile: true
+sidebar:
+  nav: "docs"
 ---
 
 # OSdev Workshop Webpage

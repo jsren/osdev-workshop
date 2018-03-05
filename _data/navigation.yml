@@ -10,3 +10,26 @@ main:
   #   url: /collection-archive/
   # - title: "Sitemap"
   #   url: /sitemap/
+
+toc:
+  - title: "0 - Workshop Setup"
+    children:
+      - title: "Install all the things!"
+        url: /start/setup
+      - title: "Example Setups"
+        url: /start/examples
+
+  - title: "1 - x86 Assembly"
+    children:
+      - title: "Registers and Arithmetic"
+        url: /parts/1/registers-arithmetic
+      - title: "Control Flow"
+        url: /parts/1/control-flow
+      - title: "The Stack"
+        url: /parts/1/stack
+      - title: "Segmentation 1"
+        url: /parts/1/segmentation1
+      - title: "Segmentation 2 (GDT)"
+        url: /parts/1/segmentation2
+
+  - title: "2 - Input/Output"
