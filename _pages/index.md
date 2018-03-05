@@ -4,7 +4,7 @@ layout: archive
 permalink: /
 author_profile: true
 sidebar:
-  nav: "docs"
+  nav: "toc"
 ---
 
 # OSdev Workshop Webpage
