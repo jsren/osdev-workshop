@@ -1,7 +1,11 @@
 # main links
 main:
-  #- title: "Quick-Start Guide"
-  #  url: https://mmistakes.github.io/minimal-mistakes/docs/quick-start-guide/
+  - title: "Home"
+    url: /
+  - title: "Quick Setup"
+    url: /workshop-setup/setup
+  - title: "Skeleton Repo"
+    url: https://github.com/jsren/os-workshop-skeleton
   # - title: "About"
   #   url: https://mmistakes.github.io/minimal-mistakes/about/
   # - title: "Sample Posts"
@@ -15,25 +19,54 @@ toc:
   - title: "0 - Workshop Setup"
     children:
       - title: "Install all the things!"
-        url: /parts/0/setup
-      - title: "Example Setups"
-        url: /parts/0/examples
+        url: /workshop-setup/setup
       - title: "Testing your Setup"
-        url: /parts/0/test
+        url: /workshop-setup/test
       - title: "Skeleton Repository"
-        url: https://github.com/jsren/dasboot
+        url: https://github.com/jsren/os-workshop-skeleton
 
   - title: "1 - x86 Assembly"
     children:
       - title: "Registers and Arithmetic"
-        url: /parts/1/registers-arithmetic
+        url: /x86-assembly/registers-arithmetic
       - title: "Control Flow"
-        url: /parts/1/control-flow
+        url: /x86-assembly/control-flow
       - title: "The Stack"
-        url: /parts/1/stack
+        url: /x86-assembly/stack
       - title: "Segmentation 1"
-        url: /parts/1/segmentation1
+        url: /x86-assembly/segmentation1
       - title: "Segmentation 2 (GDT)"
-        url: /parts/1/segmentation2
+        url: /x86-assembly/segmentation2
 
   - title: "2 - Input/Output"
+    children:
+      - title: "Memory"
+        url: /input-output/memory
+      - title: "Ports and Memory Mapping"
+        url: /input-output/transport
+      - title: "Interrupts and the PIC"
+        url: /input-output/pic
+      - title: "Keyboard"
+        url: /input-output/keyboard
+      - title: "Display (VGA)"
+        url: /input-output/vga
+      - title: "BIOS Functions"
+        url: /input-output/bios
+
+  - title: "3 - Protected Mode"
+    children:
+      - title: "Entering Protected Mode"
+        url: /protected-mode/pmode
+      - title: "Interrupts 2 (IDT)"
+        url: /protected-mode/idt
+      - title: "Paging"
+        url: /protected-mode/paging
+
+  - title: "4 - Next Steps"
+    children:
+      - title: "Multiprocessing"
+        url: /next-steps/mp
+      - title: "Interrupts 3"
+        url: /next-steps/apic
+      - title: "Disk I/O"
+        url: /next-steps/disk

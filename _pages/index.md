@@ -25,4 +25,5 @@ sidebar:
 ## Resources
  - [OSDev Wiki](https://wiki.osdev.org "OSDev Wiki") - Pages with tutorials and info on all aspects of operating system development
  - [Intel x86 developer handbook](https://software.intel.com/sites/default/files/managed/39/c5/325462-sdm-vol-1-2abcd-3abcd.pdf) - serious technical documentation, can be used for reference
- - [Solution Repo](https://github.com/jsren/dasboot) - A GitHub repository containing a solution for the workshop practical
+ - [Solution Repo](https://github.com/jsren/dasboot) - A GitHub repository containing a simple solution for the workshop practical
+

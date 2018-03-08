@@ -127,6 +127,7 @@ author:
 include:
   - .htaccess
   - _pages
+  - _pages/parts_0
 exclude:
   - "*.sublime-project"
   - "*.sublime-workspace"
@@ -254,8 +255,10 @@ defaults:
       path: ""
       type: posts
     values:
-      layout: single
+      layout: archive
       author_profile: true
+      sidebar:
+        nav: "toc"
       read_time: true
       comments: # true
       share: true
