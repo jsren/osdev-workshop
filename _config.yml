@@ -13,7 +13,7 @@ locale                   : "en-US"
 title                    : "OSDev Workshop Website"
 title_separator          : "-"
 name                     : "James Renwick"
-description              : "Wesite supporting the osdev workshop @ university of Edinburgh"
+description              : "Webite supporting the osdev workshop @ university of Edinburgh"
 url                      : #
 baseurl                  : # the subpath of your site, e.g. "/blog"
 repository               : # GitHub username/repo-name e.g. "mmistakes/minimal-mistakes"
