@@ -119,3 +119,5 @@ The compiler (`none-eabi-gcc`) and assembler (`nasm`) should now be
 installed.
 
 ## OSx
+
+`brew install qemu`

@@ -6,14 +6,6 @@ main:
     url: /workshop-setup/setup
   - title: "Skeleton Repo"
     url: https://github.com/jsren/os-workshop-skeleton
-  # - title: "About"
-  #   url: https://mmistakes.github.io/minimal-mistakes/about/
-  # - title: "Sample Posts"
-  #   url: /year-archive/
-  # - title: "Sample Collections"
-  #   url: /collection-archive/
-  # - title: "Sitemap"
-  #   url: /sitemap/
 
 toc:
   - title: "0 - Workshop Setup"
@@ -35,8 +27,6 @@ toc:
         url: /x86-assembly/stack
       - title: "Segmentation 1"
         url: /x86-assembly/segmentation1
-      - title: "Segmentation 2 (GDT)"
-        url: /x86-assembly/segmentation2
 
   - title: "2 - Input/Output"
     children:
@@ -57,16 +47,22 @@ toc:
     children:
       - title: "Entering Protected Mode"
         url: /protected-mode/pmode
+      - title: "Segmentation 2 (GDT)"
+        url: /protected-mode/segmentation2
       - title: "Interrupts 2 (IDT)"
         url: /protected-mode/idt
-      - title: "Paging"
-        url: /protected-mode/paging
 
   - title: "4 - Next Steps"
     children:
+      - title: "Paging"
+        url: /protected-mode/paging
       - title: "Multiprocessing"
         url: /next-steps/mp
       - title: "Interrupts 3"
         url: /next-steps/apic
       - title: "Disk I/O"
         url: /next-steps/disk
+      - title: "Multiboot and ISO"
+        url: /next-steps/boot
+      - title: "User-Mode and Processes"
+        url: /next-steps/process
