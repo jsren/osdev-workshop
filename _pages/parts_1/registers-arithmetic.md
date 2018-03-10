@@ -10,27 +10,26 @@ sidebar:
 ## What is a Register?
 
 A register is a small but very fast store of memory within a processor.
-Processors use registers to store results of calculations and processor instructions
-typically operate on registers.
+Processor instructions typically operate on registers, and processors use
+registers to store the results of calculations.
 
-## Available Registers
-
-There are three primary types of registers in x86:
-
-- General-purpose registers
-- Pointer registers
-- Control registers
-
-### General-Purpose Registers
+## General-Purpose Registers
 
 The general-purpose registers are registers which you can use in your assembly
 code to store whatever data you wish.
 
-General-purpose registers in x86 have names which are made up of three parts:
+x86 has six general-purpose registers: `EAX`, `EBX`, `ECX`, `EDX`, `EDI`, `ESI`.
 
-1. The width (size) of the register - either **`E`** (32 bits) or nothing (16 bits)
-1. The name of the register - **`A`, `B`, `C`, `D`**
-1. A letter indicating which byte within the register - **`L`** ("Low", byte 0), **`H`** ("High", byte 1) **`X`** (all bytes)
+### Register Naming
+
+Register names are case-insensitive - they can be written in either lower-case or upper-case.
+Each register is 32 bits (4 bytes) wide. x86 uses the prefix `E` to indicate this.
+
+If the register name is given without the `E` (e.g. `AX`, `SI`), only the lower 16 bits of the register are accessed.
+For registers whose name ends in an `X`, bytes 0 and 1 can be accessed individually by replacing the `X`
+with the suffix **`L`** ("Low", byte 0) or **`H`** ("High", byte 1).
+
+You cannot combine the `E` prefix with an `L` or `H` suffix (e.g. `EAH` is not valid).
 
 Example:
 
@@ -40,50 +39,11 @@ Example:
 | `BX` | Access only 16-bits of register B |
 | `CL` | Access byte 0 of register C (8 bits) |
 | `DH` | Access byte 1 of register D (8 bits) |
+| `SI` | Access only 16-bits of register `ESI` |
+| `EDI` | Access all 32-bits of register `EDI` |
 
-Register names can be written in either lower-case or upper-case.
-Only registers whose names end in **`X`** can use the byte selectors **`L`** and **`H`**.
-
-The `eax`/`ax` register is used to store the return value from functions.
-This is explained in more detail in the next section.
-
-In addition to these registers there are also the `esi`/`si` and `edi`/`di` registers.
-They are general purpose but can also have a special function when used with certain instructions.
-
-The following list contains all of the general-purpose registers in x86: \
-`EAX`, `EBX`, `ECX`, `EDX`, `EDI`, `ESI`
-
-### Pointer Registers
-
-The pointer registers are used by the processor to keep track of addresses
-during execution.
-
-| Register | Description |
-| -------- | ----------- |
-| `eip`/`ip` | Address of the next instruction to be executed |
-| `esp`/`sp` | Address of the end of the current stack frame |
-| `ebp`/`bp` | Address of the start of the current stack frame |
-
-The `eip`/`ip` register is read-only and cannot be directly written to.
-
-These registers will normally be changed automatically by
-the processor and you shouldn't use them to store data. We will explain
-in detail what these registers are used for in the next sections.
-
-In addition to these registers are the segment registers. We will discuss their
-function in [Segmentation 1](/x86-assembly/segmentation1).
-
-### Control Registers
-
-Control registers are registers used to control the processor. Writing to these registers
-usually changes the way the processor behaves. As a result, you must have special permissions
-to access these and will only be able to do that from your kernel.
-
-We will use the control registers later in the workshop.
 
 ## Arithmetic Instructions
-
-With somewhere to store values, we can now perform arithmetic operations on them.
 
 x86 supports all of the basic arithmetic and logical operations, such as addition, subtraction,
 multiplication, division, ORing, ANDing, etc.
@@ -105,31 +65,46 @@ multiplication, division, ORing, ANDing, etc.
 | `dec` | Subtracts 1 from a value |
 | `mov` | Loads a value into a register |
 
-Each instruction takes one or two parameters. Commonly the first parameter is a register (the _destination operand_)
-and the other is either a register or what we call an _immediate value_ (the _source operand_). An immediate value is just a hard-coded number, character or address.
-
-As a result, an assembly instruction such as `add eax, 3` if written in C/Java effectively performs `eax += 3`.
-
-`mov` is a particularly useful instruction which allows us to copy a value from one register to another,
-to load the value at a particular memory address into a register or to load an immediate value into a register.
-
-## Accessing Memory
-
-
-
-### Examples
-
-#### Adding 3 to the value stored in `eax`:
+#### Example 1: adding 3 to the value stored in `eax`:
 
 ```asm
 ADD eax, 3
 ```
 
-#### Performing _2x<sup>2</sup>_ on the value stored in `eax`:
+Each instruction takes one or two parameters (a.k.a. _operands_). Commonly the first parameter is a register (the _destination operand_) and the other is either a register or what we call an _immediate value_ (the _source operand_). An immediate value is just a hard-coded number, character or address.
+
+Instructions usually take the one or two parameters, do something with them and store the result in the destination operand.
+As a result, an assembly instruction such as `add eax, 3` effectively performs `eax += 3`.
+
+#### Example 2: performing _2x<sup>2</sup>_ on the value stored in `eax`:
 ```asm
 MUL eax, eax
 MUL eax, 2
 ```
+
+`MOV` ("move") is a particularly useful instruction which allows us to load a value into a register. This value could be an immediate value, a value in another register, or the value at a certain memory address.
+
+#### Example 3: performing 1024 * 5 with `ebx` and storing the result in `eax`:
+```asm
+MOV ebx, 1024
+MUL ebx, 5
+MOV eax, ebx
+```
+
+## Accessing Memory
+
+## Notes on Assembly Syntax
+
+All variants of x86 assembly language follow one of two styles: AT&T syntax or Intel syntax.
+So far we have been using Intel-syntax assembly. AT&T syntax swaps the source and destination parameters,
+often requires giving explicit sizes to instructions, and adds special symbols to indicate registers (`%`) and
+immediate values (`$`). For example, `mov eax, 3` in Intel syntax becomes `movl $3, %eax` in AT&T syntax.
+
+As AT&T syntax is commonly seen to be much less readable (by humans!), we will only be using Intel syntax in this workshop.
+
+GAS (the GNU assembler) and objdump and other GNU tools use AT&T-syntax assembly, although you can usually set a command-line option to use Intel syntax instead.
+
+## Examples
 
 #### Adding one to the value stored in `edx`:
 ```asm
