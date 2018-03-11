@@ -30,6 +30,7 @@ For registers whose name ends in an `X`, bytes 0 and 1 can be accessed individua
 with the suffix **`L`** ("Low", byte 0) or **`H`** ("High", byte 1).
 
 You cannot combine the `E` prefix with an `L` or `H` suffix (e.g. `EAH` is not valid).
+{: .notice--info}
 
 <img src="/assets/images/parts_0/register_breakdown.svg" alt="Register Breakdown" style="width: 650px;"/>
 
@@ -49,6 +50,9 @@ You cannot combine the `E` prefix with an `L` or `H` suffix (e.g. `EAH` is not v
 
 x86 supports all of the basic arithmetic and logical operations, such as addition, subtraction,
 multiplication, division, ORing, ANDing, etc.
+
+Multiplication and division have a more complex usage, which is discussed below.
+{: .notice--info}
 
 | Instruction | Description |
 | ----------- | ----------- |
@@ -134,6 +138,7 @@ immediate values (`$`). For example, `mov eax, 3` in Intel syntax becomes `movl 
 As AT&T syntax is commonly seen to be much less readable (by humans!), we will only be using Intel syntax in this workshop.
 
 GAS (the GNU assembler) and objdump and other GNU tools use AT&T-syntax assembly, although you can usually set a command-line option to use Intel syntax instead.
+{: .notice--info}
 
 ## Examples
 
