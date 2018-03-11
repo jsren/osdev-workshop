@@ -12,12 +12,9 @@ sidebar:
 ### Ubuntu 16/14
 
 1. Run `cd ~/` to change to your home directory
-1. Run `sudo apt install wget` to install wget
-1. Run `wget [LINK]` to download the pre-built compiler
-1. Extract the file with `tar -xjf [FILE]`
-1. Run `cd [FILE]` to enter the directory
-1. Run `sudo install.sh` to install the compiler
-1. Run `source ~/.bashrc` to update your environment
+1. Run `sudo apt install wget make` to install wget and GNU Make
+1. Run `wget [LINK]` to download the install script
+1. Run `./install.mk` to install the compiler
 1. Run `sudo apt install nasm` to install the assembler
 
 The compiler (`none-eabi-gcc`) and assembler (`nasm`) should now be
@@ -31,11 +28,11 @@ You can uninstall the compiler and assembler with
 ### Other Linux distributions
 
 1. Run `cd ~/` to change to your home directory
-1. Run `sudo apt install wget` to install wget
-1. Run `wget [LINK]` to download the cross-compiler script
-1. Run `sudo install.sh` to build and install the compiler
-1. Read through workshop website, check Facebook etc. until complete
-1. Run `source ~/.bashrc` to update your environment
+1. Run `sudo apt install wget make` to install wget and GNU Make
+1. Run `wget https://raw.githubusercontent.com/jsren/os-workshop-ex1/files/install.mk` to download the cross-compiler script
+1. Run `chmod +x install.mk` to allow the Makefile to execute
+1. Run `install.mk` to build and install the compiler
+1. Read through workshop website, check Facebook etc. until complete (~30 mins)
 1. Run `sudo apt install nasm` to install the assembler
 
 (If you're interested in what's happening, check out [this](https://wiki.osdev.org/GCC_Cross-Compiler) page.)
@@ -45,7 +42,7 @@ installed.
 
 You can uninstall the compiler and assembler with
 
-1. `sudo install.sh remove`
+1. `install.mk remove`
 1. `sudo apt remove nasm`
 
 ## Windows
@@ -62,13 +59,10 @@ Windows 10 supports native Linux binaries via the Windows Subsytem for Linux (WS
 With this installed, you should be able to run `bash` from the command line.
 
 1. Run `bash`
-1. Run `cd ~/` to change to your home directory
-1. Run `sudo apt install wget` to install wget
-1. Run `wget [LINK]` to download the pre-built compiler
-1. Extract the file with `tar -xjf [FILE]`
-1. Run `cd [FILE]` to enter the directory
-1. Run `sudo install.sh` to install the compiler
-1. Run `source ~/.bashrc` to update your environment
+1. Change to a suitable directory (or `cd ~/` to your home directory)
+1. Run `sudo apt install wget make` to install wget and GNU Make
+1. Run `wget [LINK]` to download the install script
+1. Run `./install.mk` to install the compiler
 1. Run `sudo apt install nasm` to install the assembler
 
 The compiler (`none-eabi-gcc`) and assembler (`nasm`) should now be
@@ -108,16 +102,14 @@ To install Cygwin:
 With this installed, you should be able to run `bash` from the command line.
 
 1. Run `bash`
-1. Run `cd ~/` to change to your home directory
-1. Run `wget [LINK]` to download the pre-built compiler
-1. Extract the file with `tar -xjf [FILE]`
-1. Run `cd [FILE]` to enter the directory
-1. Run `sudo install.sh` to install the compiler
-1. Run `source ~/.bashrc` to update your environment
+1. Change to a suitable directory (or `cd ~/` to your home directory)
+1. Run `wget [LINK]` to download the install script
+1. Run `./install.mk` to install the compiler
 
 The compiler (`none-eabi-gcc`) and assembler (`nasm`) should now be
 installed.
 
 ## OSx
 
-`brew install qemu`
+1. Run `brew install qemu` to install `qemu`
+
