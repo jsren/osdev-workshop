@@ -23,8 +23,8 @@ toc:
         url: /x86-assembly/registers-arithmetic
       - title: "Control Flow"
         url: /x86-assembly/control-flow
-      - title: "The Stack"
-        url: /x86-assembly/stack
+      - title: "NASM Syntax"
+        url: /x86-assembly/nasm
       - title: "Segmentation 1"
         url: /x86-assembly/segmentation1
 
