@@ -163,8 +163,8 @@ with `pop`. The stack, as the name suggests, is last-in-first-out (LIFO) - in ot
 `pop` removes the _most recent_ item you added. Another explanation is [here](https://simple.wikipedia.org/wiki/Stack_(data_structure)). In x86, each entry on the stack is 4 bytes wide, even if you push a single byte.
 
 x86 uses two registers to keep track of the stack: `ESP` and `EBP`. `ebp`, or the base pointer
-(also known as the frame pointer), is used to point to the start of the stack, and `esp`, the stack pointer,
-points to the end (the latest item).
+(also known as the frame pointer), is used to point to the start of the stack for the current function,
+and `esp`, the stack pointer, points to the end for the current function (the latest item).
 
 The stack pointer (`esp`) is automatically updated by `push` and `pop`. However, the base pointer (`ebp`)
 is not. To keep `ebp` updated, we use the **`enter`** and **`leave`** instructions. `enter` must be the first
@@ -176,6 +176,23 @@ to the start of stack of the _previous_ function.
 
 `leave` restores the previous `ebp` by popping it from the stack back into the `ebp`.
 
+#### Example 6: Manual Implementation of `enter` and `leave`
+```nasm
+manual:
+    push ebp       ; Perform 'enter'
+    mov ebp, esp
+    ; ...
+    pop ebp        ; Perform 'leave'
+    ret
+```
+
+You can also pass an extra argument to `enter` and `leave` to allocate and deallocate space on the stack
+for function data.
+{: .notice--info}
+
+`push x` is the same as `sub esp, 4`, `mov [esp], x`. And equally `pop x` is `mov x, [esp]`, `add esp, 4`.
+{: .notice--info}
+
 <img src="/assets/images/parts_1/stack.svg" alt="Example of a Call Stack" style="width: 650px;"/>
 
 ### Function calls and the Stack
@@ -184,7 +201,7 @@ to the start of stack of the _previous_ function.
 of the next instruction after `call` onto the stack and then jumps to the new function. The new function returns
 with `ret`, which pops the return address off the stack and jumps to it, jumping back to the previous function.
 
-#### Example 6: Manual Implementation of `call` and `ret`
+#### Example 7: Manual Implementation of `call` and `ret`
 ```nasm
 manual_ret:
     pop ecx            ; ret - pop return address
@@ -208,7 +225,7 @@ Functions can also `push` values if they're too large to fit in registers or to 
 before calling another function.
 
 
-#### Example 7: Function for adding two numbers
+#### Example 8: Function for adding two numbers
 
 ```nasm
 sum:
@@ -248,7 +265,7 @@ As we've already seen, `call` pushes the return address and `enter` pushes the p
 two additional entries between the current `ebp` and the arguments. Each entry is 4 bytes wide.
 
 Putting this together, the first argument is at address `ebp + 8`, the second is at `ebp + 12`, the third is
-at `ebp + 16` and so on. Example 7 gives a demonstration of this.
+at `ebp + 16` and so on. Example 8 gives a demonstration of this.
 
 ### CDECL and Calling Conventions
 
@@ -267,6 +284,8 @@ function call.
 Equally, if functions which have been called from other functions wish to modify the `ebx`,
 `esi` or `edi` registers, they must ensure that their original values are
 restored before they return.
+
+#### Example 9: Calling under CDECL
 
 ```nasm
 sum:
@@ -316,9 +335,6 @@ int main()
     return eax + esi;
 }
 ```
-
-`push x` is the same as `sub esp, 4`, `mov [esp], x`. And equally `pop x` is `mov x, [esp]`, `add esp, 4`.
-{: .notice--info}
 
 To return a value larger than can fit in `EAX` you can either split the value between
 multiple registers, or, as is more common, you can pass an address as an additional
