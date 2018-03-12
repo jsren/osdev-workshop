@@ -32,7 +32,7 @@ with the suffix **`L`** ("Low", byte 0) or **`H`** ("High", byte 1).
 You cannot combine the `E` prefix with an `L` or `H` suffix (e.g. `EAH` is not valid).
 {: .notice--info}
 
-<img src="/assets/images/parts_0/register_breakdown.svg" alt="Register Breakdown" style="width: 650px;"/>
+<img src="/assets/images/parts_1/register_breakdown.svg" alt="Register Breakdown" style="width: 650px;"/>
 
 #### Examples
 

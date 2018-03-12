@@ -160,30 +160,61 @@ main:
 
 Items are added ("pushed") onto the stack with the `push` instruction, and removed
 with `pop`. The stack, as the name suggests, is last-in-first-out (LIFO) - in other words,
-`pop` removes the _most recent_ item you added. Another explanation is [here](https://simple.wikipedia.org/wiki/Stack_(data_structure)).
-
-So to pass arguments to a function, we push the arguments in **reverse order**, so if we have two arguments,
-we `push` the _second_ argument first, and then the first argument. Then the function using the arguments can
-access them on the stack.
-
-Functions can also `push` values if they're too large to fit in registers or to store register values safely
-before calling another function.
+`pop` removes the _most recent_ item you added. Another explanation is [here](https://simple.wikipedia.org/wiki/Stack_(data_structure)). In x86, each entry on the stack is 4 bytes wide, even if you push a single byte.
 
 x86 uses two registers to keep track of the stack: `ESP` and `EBP`. `ebp`, or the base pointer
 (also known as the frame pointer), is used to point to the start of the stack, and `esp`, the stack pointer,
-points to the end.
+points to the end (the latest item).
 
 The stack pointer (`esp`) is automatically updated by `push` and `pop`. However, the base pointer (`ebp`)
 is not. To keep `ebp` updated, we use the **`enter`** and **`leave`** instructions. `enter` must be the first
 instruction in each function and `leave` must be put directly before `ret`.
 
-#### Example 6: Function for adding two numbers
+The `enter` instruction pushes the previous `ebp` and then sets `ebp` to the current `esp`. This updates
+`ebp` to point to the start of the stack for the current function, whereas the previous `ebp` value pointed
+to the start of stack of the _previous_ function.
+
+`leave` restores the previous `ebp` by popping it from the stack back into the `ebp`.
+
+<img src="/assets/images/parts_1/stack.svg" alt="Example of a Call Stack" style="width: 650px;"/>
+
+### Function calls and the Stack
+
+`call` and `ret` use the stack in order to know where to return. `call` pushes the _return address_ - the address
+of the next instruction after `call` onto the stack and then jumps to the new function. The new function returns
+with `ret`, which pops the return address off the stack and jumps to it, jumping back to the previous function.
+
+#### Example 6: Manual Implementation of `call` and `ret`
+```nasm
+manual_ret:
+    pop ecx            ; ret - pop return address
+    jmp ecx            ; ret - jump to return address
+
+manual_call:
+    push .next         ; call - push return address
+    jmp manual_ret     ; call - jump to function
+
+.next:                 ; Will resume here
+    ...
+```
+
+### Function arguments and the Stack
+
+We also use the stack to pass arguments to a function. We push the arguments in **reverse order**,
+so if we have two arguments, we `push` the _second_ argument first, and then the first argument.
+Then the function using the arguments can access them on the stack.
+
+Functions can also `push` values if they're too large to fit in registers or to store register values safely
+before calling another function.
+
+
+#### Example 7: Function for adding two numbers
 
 ```nasm
 sum:
     enter
-    mov eax, [esp + 4]
-    mov ecx, [esp + 8]
+    mov eax, [ebp + 8]   ; copies 5 to eax
+    mov ecx, [ebp + 12]  ; copies 8 to eax
     add eax, ecx
     leave
     ret
@@ -192,7 +223,7 @@ main:
     enter
     push 3
     push 5
-    call sum   ; Result in eax
+    call sum             ; Result (8) in eax
     leave
     ret
 ```
@@ -207,14 +238,17 @@ int main()
 }
 ```
 
-Once inside a function, arguments on the stack must be accessed via the stack pointer (`esp`), not via
-`pop`. In x86, each entry on the stack is 4 bytes wide, even if you push a single byte.
+Once inside a function, arguments on the stack must be accessed via the base pointer (`ebp`), not via
+`pop`.
 
 The stack has one more trick up its sleeve - it _grows downwards_, in other words, as you push more things
 on the stack, `esp` gets smaller, not larger, and vice-versa.
 
-Putting this together, the first argument is at address `esp + 4`, the second is at `esp + 8`,
-the third is at `esp + 12` and so on. Example 6 gives a demonstration of this.
+As we've already seen, `call` pushes the return address and `enter` pushes the previous `ebp`, so there are
+two additional entries between the current `ebp` and the arguments. Each entry is 4 bytes wide.
+
+Putting this together, the first argument is at address `ebp + 8`, the second is at `ebp + 12`, the third is
+at `ebp + 16` and so on. Example 7 gives a demonstration of this.
 
 ### CDECL and Calling Conventions
 
@@ -237,8 +271,8 @@ restored before they return.
 ```nasm
 sum:
     enter
-    mov eax, [esp + 4]
-    mov ecx, [esp + 8]
+    mov eax, [ebp + 8]
+    mov ecx, [ebp + 12]
     add eax, ecx
     leave
     ret
@@ -255,6 +289,9 @@ main:
     push 8        ; Push argument 2
     push 16       ; Push argument 1
     call sum      ; Result in eax
+    pop ecx       ; Pop arguments off - the pop instruction
+    pop ecx       ; requires a register or memory location, so we'll
+                  ; just use ecx because it's free
 
     mov esi, eax  ; Move result of addition to esi
 
@@ -283,14 +320,12 @@ int main()
 `push x` is the same as `sub esp, 4`, `mov [esp], x`. And equally `pop x` is `mov x, [esp]`, `add esp, 4`.
 {: .notice--info}
 
-`call` and `return` make additional use of the stack. `call` pushes the address of the instruction to return to
-and `ret` pops this instruction and jumps to it. This is why you must use `esp + 4` to access the first parameter -
-`[esp]` has the return address.
-{: .notice--info}
-
 To return a value larger than can fit in `EAX` you can either split the value between
 multiple registers, or, as is more common, you can pass an address as an additional
 argument to which you copy the output data.
+{: .notice--info}
+
+To push a value larger than a stack entry you can push each set of 4 bytes individually.
 {: .notice--info}
 
 ## Exercises
