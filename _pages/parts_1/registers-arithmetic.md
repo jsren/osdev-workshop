@@ -119,7 +119,7 @@ mov eax, dword [0x7C00 + 16]
 
 ### Specifying Size
 
-As was mentioned previously, in order to access memory in assembly we must tell the assembler the size of the memory we wish to access. In NASM that is achieved simply by putting `byte` (1 bytes), `word` (2 bytes), or `dword` (3 bytes) before the square brackets:
+As was mentioned previously, in order to access memory in assembly we must tell the assembler the size of the memory we wish to access. In NASM that is achieved simply by putting `byte` (1 bytes), `word` (2 bytes), or `dword` (4 bytes) before the square brackets:
 
 #### Example 6: Load the value at address `0x7C00 + 16` into `eax`
 ```nasm

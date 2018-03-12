@@ -24,7 +24,7 @@ toc:
       - title: "Control Flow"
         url: /x86-assembly/control-flow
       - title: "NASM Syntax"
-        url: /x86-assembly/nasm
+        url: /x86-assembly/nasm-syntax
       - title: "Segmentation 1"
         url: /x86-assembly/segmentation1
 
