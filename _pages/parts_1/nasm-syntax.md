@@ -13,6 +13,7 @@ sidebar:
 have already covered most of the basic NASM syntax. Here we will cover much of the rest.
 
 - Literals, such as numbers, can be expressed in hexadecimal via the `h` suffix or `0x` prefix
+- Binary literals are suffixed with `b` and can be made more readable by splitting them with `_`
 - Character literals can use either single or double quotes (e.g. `'a'`, `"a"`)
 - Memory is accessed via addresses in square brackets (`[` and `]`) plus a width specifier (`byte`, `word`, `dword`)
 
@@ -22,6 +23,8 @@ label:
     add eax, 2
     add eax, 2h
     add eax, 0x2
+    sub eax, 1101b
+    div 0011_0001b
     mov ax, word [32]
     cmp ax, 'h'
     jne error
@@ -52,11 +55,15 @@ We can also initialise reserved data by putting an initial value next to the com
 my_int: dd 0xDEADBEEF
 ```
 
-Strings can be declared and initialised by using string literals. Notice that in the example we use the `db` command, as each individual character is only a single byte, and that the string ends with a null character `\0` to signify the end.
+### Strings
+
+Strings can be declared and initialised by using string literals. Notice that in the example we use the `db` command, and that the string ends with a null character `\0` to signify the end.
 
 ```nasm
 message: db "Hello World!\0"
 ```
+
+### Structs
 
 Complex data structrures can be created by chaining multiple data commands:
 
