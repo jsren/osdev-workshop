@@ -131,12 +131,13 @@ The wires (lines) connecting the processor to the memory were designated
 Some programs relied on the processor to ignore the 21st bit so 32-bit processors broke
 backwards-compatability with the 20-bit addressing. To solve this, IBM added
 the _A20 Gate_. This was a boolean flag which enabled or disabled the 21st address line.
-The A20 Gate was set to false by default, and so the 21st bit was ignored, emulating
-Intel's 20-bit addressing.
+
+If the A20 Gate is false, then the 21st address line is always zero. The A20 Gate was set
+to false by default, and so the 21st bit was ignored, emulating Intel's 20-bit addressing.
 
 As we are targeting 32-bit processors, we must change the A20 Gate to true, to enable
 the 21st address bit, otherwise all addresses which use this bit will be handled incorrectly.
 
-In typical IBM-style they added this flag to the most understandable location -
+In typical IBM-style they added this flag to the most suitable location -
 the keyboard controller. Thus we need to interface with the keyboard controller to enable
 the A20 line. We will cover this later in [Entering Protected Mode](/protected-mode/entering-protected-mode).
