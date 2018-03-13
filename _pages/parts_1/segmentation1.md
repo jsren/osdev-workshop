@@ -1,3 +1,11 @@
+---
+title: "Segmentation 1"
+permalink: /x86-assembly/segmentation1
+layout: archive
+author_profile: true
+sidebar:
+    nav: "toc"
+---
 
 There are two variants of segmentation in x86. This page will focus on the original, real-mode
 kind. For segmentation in Protected Mode and the GDT, see [Segmentation 2](/protected-mode/segmentation2).
