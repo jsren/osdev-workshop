@@ -46,7 +46,7 @@ toc:
   - title: "3 - Protected Mode"
     children:
       - title: "Entering Protected Mode"
-        url: /protected-mode/pmode
+        url: /protected-mode/entering-protected-mode
       - title: "Segmentation 2 (GDT)"
         url: /protected-mode/segmentation2
       - title: "Interrupts 2 (IDT)"

@@ -71,7 +71,7 @@ Complex data structrures can be created by chaining multiple data commands:
 my_structure:
     db 4
     dw 0
-    dd 0xCOFFEE
+    dd 0xC0FFEE
 ```
 
 ## Binary Sections
