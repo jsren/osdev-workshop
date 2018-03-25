@@ -27,6 +27,8 @@ toc:
         url: /x86-assembly/nasm-syntax
       - title: "Segmentation 1"
         url: /x86-assembly/segmentation1
+      - title: "Multiboot"
+        url: /x86-assembly/boot
 
   - title: "2 - Input/Output"
     children:
@@ -52,17 +54,32 @@ toc:
       - title: "Interrupts 2 (IDT)"
         url: /protected-mode/idt
 
-  - title: "4 - Next Steps"
+  - title: "4 - The Kernel"
     children:
+      - title: "Kernel Basics"
+        url: /the-kernel/basics
       - title: "Paging"
-        url: /protected-mode/paging
-      - title: "Multiprocessing"
-        url: /next-steps/mp
-      - title: "Interrupts 3"
-        url: /next-steps/apic
+        url: /the-kernel/paging
+      - title: "Processes and Threads"
+        url: /the-kernel/process
+      - title: "Scheduling"
+        url: /the-kernel/scheduling
+      - title: "System Calls"
+        url: /the-kernel/syscalls
+      - title: "Program Loading"
+        url: /the-kernel/loader
+      - title: "Compiling Programs"
+        url: /the-kernel/programs
+
+  - title: "5 - Drivers"
+    children:
+      - title: "Framework"
+        url: /drivers/framework
+      - title: "Filesystem"
+        url: /the-kernel/filesystem
       - title: "Disk I/O"
-        url: /next-steps/disk
-      - title: "Multiboot and ISO"
-        url: /next-steps/boot
-      - title: "User-Mode and Processes"
-        url: /next-steps/process
+        url: /drivers/disk
+      - title: "Interrupts 3"
+        url: /drivers/apic
+      - title: "Multiprocessing"
+        url: /drivers/mp
