@@ -21,7 +21,7 @@ limitations.
 
 The processor's normal 32-bit mode of execution is known as _Protected Mode_. We will
 cover Protected Mode, how to enter it and segmentation later in the workshop.
-{: .notice-info}
+{: .notice--info}
 
 ## History
 
@@ -111,7 +111,7 @@ call 0:0x7C00     ; far-call, change CS to 0
 ```
 
 We will use a far-call when entering Protected Mode.
-{: .notice-info}
+{: .notice--info}
 
 
 ## The A20 Line
@@ -126,7 +126,7 @@ valid 32-bit address.
 
 The wires (lines) connecting the processor to the memory were designated
 `A` for address and then their index, so `A0` is the first address line.
-{: .notice-info}
+{: .notice--info}
 
 Some programs relied on the processor to ignore the 21st bit so 32-bit processors broke
 backwards-compatability with the 20-bit addressing. To solve this, IBM added

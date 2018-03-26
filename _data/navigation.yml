@@ -53,19 +53,21 @@ toc:
         url: /protected-mode/segmentation2
       - title: "Interrupts 2 (IDT)"
         url: /protected-mode/idt
+      - title: "Exceptions"
+        url: /protected-mode/exceptions
 
   - title: "4 - The Kernel"
     children:
       - title: "Kernel Basics"
         url: /the-kernel/basics
-      - title: "Paging"
-        url: /the-kernel/paging
       - title: "Processes and Threads"
         url: /the-kernel/process
-      - title: "Scheduling"
-        url: /the-kernel/scheduling
       - title: "System Calls"
         url: /the-kernel/syscalls
+      - title: "Paging"
+        url: /the-kernel/paging
+      - title: "Scheduling"
+        url: /the-kernel/scheduling
       - title: "Program Loading"
         url: /the-kernel/loader
       - title: "Compiling Programs"
