@@ -212,7 +212,7 @@ in the `cr2` register.
 The function `asm_get_cr2()` has been provided in `utils.c` to read and return the value in `cr2`.
 
 To handle the #PF exception, you must assign your handler function to the corresponding index
-in the provided `utils_exception_handlers` array. For example:
+in the provided `utils_interrupt_handlers` array. For example:
 
 ```c
     void pagefault_handler(unsigned int errorCode) {
@@ -220,7 +220,7 @@ in the provided `utils_exception_handlers` array. For example:
     }
 
     // Page Fault is exception number 14
-    utils_exception_handlers[14] = (void(*)())pf_handler;
+    utils_interrupt_handlers[14] = (void(*)())pf_handler;
 ```
 
 The 32-bit error code is broken down in the following table:
@@ -331,5 +331,3 @@ static page_table_entry pageTable[1024 * 1024];
 to change the page table entry for page 0 to be _present_, update that page (with `asm_invlpg((void*)0)`)
 and return
 1. Your message should be printed and then your code should complete as normal
-
-## Exercise 4 - Global Pages

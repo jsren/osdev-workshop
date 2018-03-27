@@ -62,18 +62,23 @@ toc:
         url: /the-kernel/basics
       - title: "Processes and Threads"
         url: /the-kernel/process
-      - title: "System Calls"
-        url: /the-kernel/syscalls
-      - title: "Paging"
-        url: /the-kernel/paging
       - title: "Scheduling"
         url: /the-kernel/scheduling
-      - title: "Program Loading"
-        url: /the-kernel/loader
-      - title: "Compiling Programs"
-        url: /the-kernel/programs
+      - title: "Paging"
+        url: /the-kernel/paging
+      - title: "Memory Management"
+        url: /the-kernel/memory
 
-  - title: "5 - Drivers"
+  - title: "5 - User Programs"
+    children:
+      - title: "Program Loading"
+        url: /user-programs/loader
+      - title: "Compiling Programs"
+        url: /user-programs/compiling
+      - title: "System Calls"
+        url: /user-programs/syscalls
+
+  - title: "6 - Drivers"
     children:
       - title: "Framework"
         url: /drivers/framework
