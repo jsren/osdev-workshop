@@ -28,9 +28,9 @@ sidebar:
 | 14:35 | System Calls | 15m |
 | 15:00 | **Practical 3** | **30m** |
 | 15:30 | Driver Framework | 5m |
-| 15:35 | Keyboard Driver | 10m |
-| 15:45 | Display Driver | 10m |
-| 14:55 | **Practical 4** | **60m** |
+| 15:35 | Display Driver | 10m |
+| 15:45 | Keyboard Driver | 10m |
+| 15:55 | **Practical 4** | **60m** |
 | 16:00 | End | - |
 | | | |
 | 17:00 | **Practical Ext** | **60m** |
