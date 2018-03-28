@@ -1,6 +1,6 @@
 ---
 title: "Workshop Itinerary"
-permalink: /itinerary
+permalink: /itinerary1
 layout: archive
 author_profile: true
 sidebar:
