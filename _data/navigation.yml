@@ -61,7 +61,7 @@ toc:
       - title: "Kernel Basics"
         url: /the-kernel/basics
       - title: "Processes and Threads"
-        url: /the-kernel/process
+        url: /the-kernel/processes-and-threads
       - title: "Scheduling"
         url: /the-kernel/scheduling
       - title: "Paging"
