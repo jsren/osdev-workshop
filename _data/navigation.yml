@@ -72,7 +72,7 @@ toc:
   - title: "5 - User Programs"
     children:
       - title: "Program Loading"
-        url: /user-programs/loader
+        url: /user-programs/program-loading
       - title: "Compiling Programs"
         url: /user-programs/compiling
       - title: "System Calls"

@@ -7,23 +7,271 @@ sidebar:
     nav: "toc"
 ---
 
-Before USB, keyboards and mice connected to the computer via the PS/2 connector. These were circular 6-pin ports, often coloured green and purple.
+## Introduction
 
-Most keyboards we use today connect to the computer via USB. Thus interacting with the keyboard should require us to first write a USB driver, a challenging task just to read keys.
+Before USB, most keyboards and mice connected to the computer via the PS/2 connector. These were circular 6-pin ports, often coloured green and purple. The interface for working with these devices was relatively simple and easy to configure.
 
-USB drivers are large and complex. As keyboard input is often required in early stages of power-on, such as in the bootloader, the BIOS (specifically the System Management Mode firmware) can handle this for us, converting USB keyboard interaction into old-style PS/2. As a result, in order to enable use of the keyboard, we have the option to write a PS/2 keyboard driver, which is much simpler.
+<img src="/assets/images/parts_2/ps-2-ports.jpg" alt="Example of PS/2 Connectors" style="width:200px"/> <br/>
+<small>By <a title="User:Norm~commonswiki" href="//commons.wikimedia.org/wiki/User:Norm~commonswiki">Norman Rogers</a> - <span class="int-own-work" lang="en">Own work</span>, Public Domain, <a href="https://commons.wikimedia.org/w/index.php?curid=12584">Link</a></small>
+<br/>
+
+Today almost all keyboards and mice connect to the computer via USB. Thus interacting with the keyboard should require us to first write a USB driver, which is large and complex.
+
+However, keyboard input is often required in early stages of power-on, such as in the bootloader, where code should aim to be small and simple.
+
+In order to prevent the need for bootloaders and firmware to require their own USB drivers, the BIOS provides its own, and what's more, can emulate the old-style PS/2 controller, making USB keyboards look like PS/2 keyboards.
+
+As a result, instead of diving in to the complexities of the USB stack, we will here focus on writing a PS/2 keyboard driver, which will work, thanks to the BIOS, with USB keyboards too.
 
 Before interacting with the USB host controller in your own USB driver, this legacy keyboard support must first be disabled. This can be done via the appropriate host controller interface (e.g. EHCI).
 {: .notice--info}
 
-## The PS/2 Controller
+Note that only USB keyboards, not USB mice, support PS/2 emulation.
 
-The IBM Personal System/2 introduced two purpose-built connectors (known as the PS/2 ports) for connecting compatible mice and keyboards. These connectors have a particular method of serial command-response communication.
+# The PS/2 Controller
 
-<br/>
-<img src="/assets/images/parts_2/ps-2-ports.jpg" alt="Example of PS/2 Connectors"/> <br/>
-By <a title="User:Norm~commonswiki" href="//commons.wikimedia.org/wiki/User:Norm~commonswiki">Norman Rogers</a> - <span class="int-own-work" lang="en">Own work</span>, Public Domain, <a href="https://commons.wikimedia.org/w/index.php?curid=12584">Link</a>
-<br/>
+The IBM Personal System/2 (PS/2) introduced two purpose-built connectors (known as the PS/2 ports) for connecting compatible mice and keyboards. Both ports were co-ordinated by the hardware PS/2 controller, which managed communication with the devices.
 
-Both ports were co-ordinated by the PS/2 controller, a relativly powerful chip, which was also responsible for the A20 Gate and the system reset line, which could be used to restart the computer.
+Not all controllers have two ports, as support for two is optional.
+
+## Controller Registers
+
+### Communication Registers
+
+The PS/2 controller uses four internal registers for communication:
+
+| Name | Port | Access | Description |
+| ---- | ---- | ------ | ----------- |
+| Status Register | 0x64 | Read-only | Has information on controller status |
+| Output Buffer | 0x60 | Read-only | Reads data from the controller or keyboard |
+| Command Input Buffer | 0x64 | Write-only | Sends command to controller |
+| Data Input Buffer | 0x60 | Write-only | Sends data to controller or keyboard |
+
+Each register is 8 bytes wide, and we can read from or write to these registers via I/O ports, as described in [Ports and Memory Mapping](/input-output/ports-and-memory-mapping).
+
+Communication is typically performed by writing a command to the Command Input Buffer, and then reading response values (if any) from the Output Buffer.
+
+### Configuration Registers
+
+The controller also has internal registers used for configuration:
+
+| Name | Description | Read Command | Write Command |
+| ---- | ----------- | ------------ | ------------- |
+| Configuration | Controls various features of the PS/2 ports | 0x20 | 0x60 |
+| Output | Has status information on external lines/devices | 0xD0 | 0xD1 |
+| Input | Undefined - best not to use | 0xC0 | - |
+
+These two registers are accessed by writing commands to the Command Input Buffer (port 0x64).
+
+Unlike the registers we've seen before, these registers are present within the PS/2 controller, not within the processor, and so cannot be read directly (e.g. using `mov`).
+{: .notice--info}
+
+Technically, there are only three registers used for communication, as the Data and Command Input Buffers are shared.
+{: .notice--info}
+
+## Communicating with the Controller
+
+### Reading from the Status Register
+
+The Status Register is the easiest to access. Simply read a byte from port 0x64. Reads may be performed at any time. The table below gives a partial list of the more useful flags in the Status Register.
+
+| Bit | Value | Description |
+| --- | ----- | ----------- |
+| 0   | 0     | Output Buffer is empty, do not read |
+|     | 1     | Output Buffer has value, can read |
+| 1   | 0     | Data/Command Input Buffer is empty, can write |
+|     | 1     | Data/Command Input Buffer is full, do not write |
+| 2+  | -     | See [here](https://wiki.osdev.org/%228042%22_PS/2_Controller#Status_Register) for further details |
+
+Example:
+
+``` c
+    uint8_t status = asm_inb(0x64);
+```
+
+### Using Commands
+
+| Command | Description | Data | Response |
+| ------- | ----------- | ---- | -------- |
+| 0x20    | Read configuration register | - | Configuration register value |
+| 0x60    | Write configuration register | Configuration register value  | - |
+| 0xA7    | Disable second PS/2 port | - | - |
+| 0xA8    | Enable second PS/2 port | - | - |
+| 0xAD    | Disable first PS/2 port | - | - |
+| 0xAE    | Enable first PS/2 port | - | - |
+| 0xD0    | Read output register | Output register value | - |
+| 0xD1    | Write output register | - | Output register value |
+| 0xD4    | Write to second PS/2 port | Value | - |
+| -       | See [here](https://wiki.osdev.org/%228042%22_PS/2_Controller#PS.2F2_Controller_Commands) for further details | - | - |
+
+Most interaction with the controller is done via commands. Commands are written to the Command Input Buffer. In order to send a command, you must perform the following steps:
+
+1 - Wait for the Command Input Buffer to be ready by polling bit 1 in the Status Register (port 0x64) to be 0
+
+```c
+    while (asm_inb(0x64) & 0b10 != 0) { } // wait for bit 1 to be zero
+```
+
+2 - Write the command to the Command Input Buffer (port 0x64)
+
+```c
+    asm_outb(0x64, command); // write the command
+```
+
+#### If the command takes a value
+
+3 - Wait for the Data Input Buffer to be ready by polling for bit 1 in the Status Register to be 0
+
+```c
+    while (asm_inb(0x64) & 0b10 != 0) { } // wait for bit 1 to be zero
+```
+
+4 - Write the value to the Data Input Buffer (port 0x60)
+
+```c
+    asm_outb(0x60, value);
+```
+
+#### If the command returns a value
+
+5 - Wait for the value to be written to the Output Buffer by polling for bit 0 in the Status Register to be 1
+
+```c
+    while (asm_inb(0x64) & 0b1 == 0) { } // Wait for bit 0 to be 1
+```
+
+6 - Read the value from the Output Buffer (port 0x60)
+
+```c
+    uint8_t value = asm_inb(0x60);
+```
+
+Here, as before, `asm_inb` and `asm_outb` emit the `inb` and `outb` assembly instructions respectively.
+
+## Configuring the Controller
+
+### Enabling and Disabling the Keyboard
+
+| Command | Description |
+| ------- | ----------- |
+| 0xAD    | Disable first PS/2 Port |
+| 0xAE    | Enable first PS/2 Port |
+| 0xA7    | Disable second PS/2 Port |
+| 0xA8    | Enable second PS/2 Port |
+
+To enable or disable devices attached to PS/2 ports, simply write the necessary command byte (as given in the table above) to the Command Input Buffer (port 0x64).
+
+For example:
+
+```c
+    // Wait for command input buffer to be free
+    while (asm_inb(0x64) & 0b10 != 0) {}
+    // Write command to command input buffer (disable keyboard)
+    asm_outb(0x64, 0xAD;
+```
+
+### Accessing the Configuration Register
+
+The configuration register has flags for controlling the features of the PS/2 Controller. The table below gives a partial list of the more useful flags in the configuration register.
+
+| Bit | Value | Description |
+| --- | ----- | ----------- |
+| 0 | 0 | First PS/2 port interrupt disabled |
+|   | 1 | First PS/2 port interrupt enabled |
+| 1 | 0 | Second PS/2 port interrupt disabled |
+|   | 1 | Second PS/2 port interrupt enabled |
+| 2 | 1 | Always 1 (Indicates that [POST](https://en.wikipedia.org/wiki/Power-on_self-test) succeeded) |
+| 3 | 0 | Always 0 |
+| 4 | 0 | First PS/2 port clock enabled |
+|   | 1 | First PS/2 port clock disabled |
+| 5 | 0 | Second PS/2 port clock enabled |
+|   | 1 | Second PS/2 port clock disabled |
+| 6 | 0 | First PS/2 port translation disabled |
+|   | 1 | First PS/2 port translation enabled |
+| 7 | 0 | Always 0 |
+
+To read from the register:
+
+1. Wait for the Command Input Buffer to be free by checking that bit 1 in the [Status Register](#reading-from-the-status-register) is zero
+1. Write [0x20](#using-commands) to the Command Input Buffer (port 0x64) to request the read
+1. Wait for the Output Buffer to have data by checking that bit 0 in the [Status Register](#reading-from-the-status-register) is 1
+1. Read from the Output Buffer (port 0x60)
+
+Do not write to controller registers while the PS/2 ports (keyboard/mouse) are enabled. Follow [these](#enabling-and-disabling-the-keyboard) steps first.
+{: .notice--danger}
+
+To write to the register:
+
+1. Read the current register value as shown above
+1. Wait for the Command Input Buffer to be free by checking that [bit 1](#reading-from-the-status-register) in the Status Register is zero
+1. Write [0x60](#using-commands) to the Command Input Buffer (port 0x64) to request the write
+1. Wait for the Data Input Buffer to be free by checking that [bit 1](#reading-from-the-status-register) in the Status Register is zero
+1. Alter the value read in step 1 and write to the Data Input Buffer (port 0x60)
+
+### Accessing the Output Register
+
+The output register has status information on external wires (lines) and devices. These flags are not generally useful for interacting with the keyboard, but support other features. The table below gives a partial list of the more useful flags in the output register.
+
+| Bit | Description |
+| --- | ----------- |
+| 0   | The system reset line - **this must always be set to 1!** |
+| 1   | A20 Line enable/disable |
+| 2+  | See [here](https://wiki.osdev.org/%228042%22_PS/2_Controller#PS.2F2_Controller_Output_Port) for further details |
+
+The system reset line can be used to restart the computer when the line is [**pulsed**](https://wiki.osdev.org/%228042%22_PS/2_Controller#CPU_Reset) via the 0xFE command. It is not enough to set it to 0 - on a real PS/2 controller this may result in the computer remaining fixed in the reset state and unable to start at all.
+{: .notice--danger}
+
+To read from the register:
+
+1. Wait for the Command Input Buffer to be free by checking that bit 1 in the [Status Register](#reading-from-the-status-register) is zero
+1. Write [0xD0](#using-commands) to the Command Input Buffer (port 0x64) to request the read
+1. Wait for the Output Buffer to have data by checking that bit 0 in the [Status Register](#reading-from-the-status-register) is 1
+1. Read from the Output Buffer (port 0x60)
+
+Do not write to controller registers while the PS/2 ports (keyboard/mouse) are enabled. Follow [these](#enabling-and-disabling-the-keyboard) steps first.
+{: .notice--danger}
+
+To write to the register:
+
+1. Read the current register value as shown above
+1. Wait for the Command Input Buffer to be free by checking that [bit 1](#reading-from-the-status-register) in the Status Register is zero
+1. Write [0xD1](#using-commands) to the Command Input Buffer (port 0x64) to request the write
+1. Wait for the Data Input Buffer to be free by checking that [bit 1](#reading-from-the-status-register) in the Status Register is zero
+1. Alter the value read in step 1 and write to the Data Input Buffer (port 0x60)
+
+### Enabling the A20 Line
+
+For cost-saving reasons, IBM placed the [A20 Gate](/x86-assembly/segmentation1#the-a20-line) (the bit enabling/disabling the A20 line) on the PS/2 controller.
+
+In order to enable the A20 line, you must set bit 1 in the output register. The code below shows how to do this. Note that **the keyboard must be disabled** for this code to work correctly.
+
+```c
+    // Wait for input buffers to be free
+    while (asm_inb(0x64) & 0b10 != 0) {}
+    // Write command to command input buffer (read output register)
+    asm_outb(0x64, 0xD0);
+    // Wait for output buffer to have data
+    while (asm_inb(0x64) & 0b1 != 0b1) {}
+    // Read output register data from output buffer
+    uint8_t outputByte = asm_inb(0x60);
+    // Wait for input buffers to be free
+    while (asm_inb(0x64) & 0b10 != 0) {}
+    // Write command to command input buffer (write output register)
+    asm_outb(0x64, 0xD1);
+    // Wait for input buffers to be free
+    while (asm_inb(0x64) & 0b10 != 0) {}
+    // Write new output register data to output buffer
+    asm_outb(0x60, outputByte | 0b10);
+
+```
+
+There are [other, faster, methods](https://wiki.osdev.org/A20_Line#Fast_A20_Gate) of enabling the A20 line, but this is by far the most reliable.
+{: .notice--info}
+
+With real hardware, you should generally perform a self-test of the PS/2 controller and with the keyboard and/or mouse. However, as PS/2 is obsolete and we're typically using the BIOS keyboard emulation, this should not be necessary, and historically the BIOS emulation code has been unstable, so it may be wise to avoid doing a self-test.
+{: .notice--info}
+
+# Communicating with the Keyboard
+
+The previous section dealt exclusively with communicating with the PS/2 Controller. This section will cover how to send commands and read keys and other information from a PS/2 keyboard.
 

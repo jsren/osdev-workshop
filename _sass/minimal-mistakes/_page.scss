@@ -18,6 +18,9 @@
   @include breakpoint($x-large) {
     max-width: $x-large;
   }
+  @include breakpoint($x-large-width) {
+    max-width: $x-large-width;
+  }
 }
 
 .page {
