@@ -271,7 +271,95 @@ There are [other, faster, methods](https://wiki.osdev.org/A20_Line#Fast_A20_Gate
 With real hardware, you should generally perform a self-test of the PS/2 controller and with the keyboard and/or mouse. However, as PS/2 is obsolete and we're typically using the BIOS keyboard emulation, this should not be necessary, and historically the BIOS emulation code has been unstable, so it may be wise to avoid doing a self-test.
 {: .notice--info}
 
+----
+
 # Communicating with the Keyboard
 
 The previous section dealt exclusively with communicating with the PS/2 Controller. This section will cover how to send commands and read keys and other information from a PS/2 keyboard.
+
+## Sending Commands to the Keyboard
+
+To send a command to the keyboard at the first PS/2 port, write the command byte to the Data Input Buffer on the controller _without_ first sending a command to the controller.
+
+To send a command to the keyboard at the second PS/2 port, first send the command **0xD4** to the controller, and then write the keyboard command to the Data Input Buffer.
+
+The keyboard may then respond with either **0xFA** (ACK) if the command succeeded or **0xFE** (Resend) if the keyboard requires you to resend the last command. For the Echo command, it always responds with **0xEE**.
+
+Example:
+
+```c
+bool send(uint8_t command)
+{
+    // TODO: Have some max number of resends
+    while (true)
+    {
+        // Wait for Data Input Buffer to be free
+        while (asm_inb(0x64) & 0b10 != 0) { }
+        // Send command to keyboard
+        asm_outb(0x60);
+
+        // Wait for value in Output Buffer
+        while (asm_inb(0x64) & 0b1 == 0) { }
+        // Read response from keyboard
+        uint8_t response = asm_inb(0x60);
+
+        // Return upon success (ACK)
+        if (response == 0xFA) return true;
+        // Resend if requested
+        else if (response == 0xFE) continue;
+        // Otherwise report error
+        else return false;
+    }
+}
+```
+
+## Receiving Data from the Keyboard
+
+In response to commands, the keyboard will send data to the Output Buffer on the controller. It can send **0x00** or **0xFF** at any time to indicate an internal error. It can also send scan codes (key presses) at any time.
+
+## Scan Codes
+
+Scan Codes are sequences of one to six bytes which represent the press or release of a single key. If you receive data which is not in response to a command, and is not **0x00** or **0xFF** (internal error), then you have received a scan code.
+
+In order to work out which key was pressed, you need a Scan Code Set, which is a table mapping each scan code to a key on a specific keyboard layout (e.g. US Keyboard Layout, UK Keyboard Layout, etc.)
+
+To complicate matters, for each scan code set there are three variants, known as Set 1, Set 2 and Set 3, and only certain variants are supported by any one keyboard. It is suspected that the Set 2 is now the most commonly supported of the three in modern hardware.
+
+Sets 1 and 2 can be found [here](https://wiki.osdev.org/PS2_Keyboard#Scan_Code_Set_1) for the US keyboard layout.
+
+As a reference, code for converting scan codes into keys can be found here.
+
+### Translation
+
+The sets can be translated between one another, and the PS/2 Controller has a built-in ability to automatically translate Set 2 into Set 1 before the scan codes are placed into the Output Buffer.
+
+This translation is only available for the first PS/2 port, and if enabled in [bit 6](#accessing-the-configuration-register) of the controller configuration register.
+
+## Interrupts
+
+The process for receiving data from the keyboard that we have just described has two major issues:
+
+- When two keyboards are connected, there is no way to tell which keyboard has sent the scan code
+- We must actively poll in order to receive scan codes from the keyboard
+
+Interrupts solve both problems. We can configure the PS/2 Controller to trigger either interrupt INT1, for the first PS/2 port or INT12 for the second, when data is received from any device.
+
+To enable these interrupts, simply set [bits 0 and 1](#accessing-the-configuration-register) in the PS/2 Controller configuration register.
+
+```c
+// Interrupt handler for INT1
+void handle_int1()
+{
+    // Don't need to check status register -
+    // interrupt means there's a byte in Output Buffer
+    uint8_t value = asm_inb(0x60);
+
+    // If using PIC, send EOI
+}
+```
+
+If the two interrupts are enabled and a subsequent PS/2 **controller** command is sent that returns data, the controller may incorrectly trigger either or neither of the two interrupts. One way to deal with this is to (gracefully) disable the PS/2 ports before sending the controller command.
+{: .notice--warning}
+
+## Keyboard Commands
 
