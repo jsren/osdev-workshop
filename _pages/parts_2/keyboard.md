@@ -354,6 +354,9 @@ void handle_int1()
     // interrupt means there's a byte in Output Buffer
     uint8_t value = asm_inb(0x60);
 
+    // Check if scan code
+    if (value == 0xFA || value == 0xFE)
+
     // If using PIC, send EOI
 }
 ```

@@ -37,7 +37,7 @@ toc:
       - title: "Ports and Memory Mapping"
         url: /input-output/transport
       - title: "Interrupts and the PIC"
-        url: /input-output/pic
+        url: /input-output/interrupts-and-the-pic
       - title: "Keyboard"
         url: /input-output/keyboard
       - title: "Display (VGA)"
