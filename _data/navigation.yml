@@ -35,7 +35,7 @@ toc:
       - title: "Memory"
         url: /input-output/memory
       - title: "Ports and Memory Mapping"
-        url: /input-output/transport
+        url: /input-output/ports-and-memory-mapping
       - title: "Interrupts and the PIC"
         url: /input-output/interrupts-and-the-pic
       - title: "Keyboard"
