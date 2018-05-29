@@ -150,8 +150,8 @@ To do this, we send an End of Interrupt (EOI) command, byte **0x20**, to the mas
 However, when the interrupt comes from the slave PIC, we must notify both the master and slave that the interrupt is complete:
 
 ```c
-    asm_outb(0x20, 0x20); // Send EOI to master
     asm_outb(0xA0, 0x20); // Send EOI to slave
+    asm_outb(0x20, 0x20); // Send EOI to master
 ```
 
 where the slave is at port **0xA0**.

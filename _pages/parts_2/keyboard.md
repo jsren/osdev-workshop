@@ -277,46 +277,6 @@ With real hardware, you should generally perform a self-test of the PS/2 control
 
 The previous section dealt exclusively with communicating with the PS/2 Controller. This section will cover how to send commands and read keys and other information from a PS/2 keyboard.
 
-## Sending Commands to the Keyboard
-
-To send a command to the keyboard at the first PS/2 port, write the command byte to the Data Input Buffer on the controller _without_ first sending a command to the controller.
-
-To send a command to the keyboard at the second PS/2 port, first send the command **0xD4** to the controller, and then write the keyboard command to the Data Input Buffer.
-
-The keyboard may then respond with either **0xFA** (ACK) if the command succeeded or **0xFE** (Resend) if the keyboard requires you to resend the last command. For the Echo command, it always responds with **0xEE**.
-
-Example:
-
-```c
-bool send(uint8_t command)
-{
-    // TODO: Have some max number of resends
-    while (true)
-    {
-        // Wait for Data Input Buffer to be free
-        while (asm_inb(0x64) & 0b10 != 0) { }
-        // Send command to keyboard
-        asm_outb(0x60);
-
-        // Wait for value in Output Buffer
-        while (asm_inb(0x64) & 0b1 == 0) { }
-        // Read response from keyboard
-        uint8_t response = asm_inb(0x60);
-
-        // Return upon success (ACK)
-        if (response == 0xFA) return true;
-        // Resend if requested
-        else if (response == 0xFE) continue;
-        // Otherwise report error
-        else return false;
-    }
-}
-```
-
-## Receiving Data from the Keyboard
-
-In response to commands, the keyboard will send data to the Output Buffer on the controller. It can send **0x00** or **0xFF** at any time to indicate an internal error. It can also send scan codes (key presses) at any time.
-
 ## Scan Codes
 
 Scan Codes are sequences of one to six bytes which represent the press or release of a single key. If you receive data which is not in response to a command, and is not **0x00** or **0xFF** (internal error), then you have received a scan code.
@@ -334,6 +294,8 @@ As a reference, code for converting scan codes into keys can be found here.
 The sets can be translated between one another, and the PS/2 Controller has a built-in ability to automatically translate Set 2 into Set 1 before the scan codes are placed into the Output Buffer.
 
 This translation is only available for the first PS/2 port, and if enabled in [bit 6](#accessing-the-configuration-register) of the controller configuration register.
+
+Translation may be enabled by default. Thus, in order to use scan code sets other than Set 1, you must first ensure that translation is disabled.
 
 ## Interrupts
 
@@ -366,3 +328,73 @@ If the two interrupts are enabled and a subsequent PS/2 **controller** command i
 
 ## Keyboard Commands
 
+| Command | Description | Data |  Response |
+| ------- | ----------- | ---- | -------- |
+| 0xED | Sets the keyboard LEDs | See table below | |
+| 0xEE | Requests echo | | 0xEE or resend (0xFE), **no ACK** |
+| 0xF0 | Gets/sets scan code set | See table below | If get, the current scan code set (1-3) |
+|     | See [here](https://wiki.osdev.org/Keyboard#Commands) for more commands |
+
+Values for command 0xED (set keyboard LEDs):
+
+| Bit | Value | Description |
+| --- | ----- | ----------- |
+| 0 | 0 | Scroll Lock LED off |
+|   | 1 | Scroll Lock LED on |
+| 1 | 0 | Num Lock LED on |
+|   | 1 | Num Lock LED off |
+| 2 | 0 | Caps Lock LED on |
+|   | 1 | Caps Lock LED off |
+
+E.g. `0b111` turns all LEDs on.
+
+Values for command **0xF0** (get/set scan code set):
+
+| Value | Description |
+| ----- | ----------- |
+| 0x0 | Gets the current scan code set number |
+| 0x1 | Use scan code set 1 |
+| 0x2 | Use scan code set 2 |
+| 0x3 | Use scan code set 3 |
+
+## Sending Commands to the Keyboard
+
+To send a command to the keyboard at the first PS/2 port, write the command byte to the Data Input Buffer on the controller _without_ first sending a command to the controller.
+
+To send a command to the keyboard at the second PS/2 port, first send the command **0xD4** to the controller, and then write the keyboard command to the Data Input Buffer.
+
+The keyboard may then respond with either **0xFA** (ACK) if the command succeeded or **0xFE** (Resend) if the keyboard requires you to resend the last command. For the Echo command, it always responds with **0xEE**.
+
+If the keyboard command has some output, it will follow an ACK response.
+
+Example:
+
+```c
+bool send(uint8_t command)
+{
+    // TODO: Have some max number of resends
+    while (true)
+    {
+        // Wait for Data Input Buffer to be free
+        while (asm_inb(0x64) & 0b10 != 0) { }
+        // Send command to keyboard
+        asm_outb(0x60, command);
+
+        // Wait for value in Output Buffer
+        while (asm_inb(0x64) & 0b1 == 0) { }
+        // Read response from keyboard
+        uint8_t response = asm_inb(0x60);
+
+        // Return upon success (ACK)
+        if (response == 0xFA) return true;
+        // Resend if requested
+        else if (response == 0xFE) continue;
+        // Otherwise report error
+        else return false;
+    }
+}
+```
+
+## Receiving Data from the Keyboard
+
+In response to commands, the keyboard will send data to the Output Buffer on the controller. It can send **0x00** or **0xFF** at any time to indicate an internal error. It can also send scan codes (key presses) at any time.
